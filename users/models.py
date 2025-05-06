@@ -18,6 +18,9 @@ class User(AbstractUser):
     country = models.CharField(max_length=100, default='Uzb')
     liked_programs = models.ManyToManyField(Program, blank=True, related_name='liked_by_users')
 
+    is_staff = models.BooleanField(default=False)
+    is_superuser = models.BooleanField(default=False)
+
     objects = CustomUserManager()
 
     USERNAME_FIELD = 'email'
