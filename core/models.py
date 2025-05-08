@@ -1,5 +1,7 @@
 from django.db import models
 
+from django.utils.text import slugify
+
 
 class Major(models.Model):
     name = models.CharField(max_length=100)
@@ -23,6 +25,7 @@ class Program(models.Model):
     ]
 
     title = models.CharField(max_length=255)
+    slug = models.SlugField(max_length=255, unique=True, blank=True)
     desc = models.TextField()
     full_info = models.TextField()
     start_date = models.DateField()
@@ -39,6 +42,11 @@ class Program(models.Model):
     gender = models.CharField(max_length=10, choices=GENDER_CHOICES)
 
     major = models.ManyToManyField('Major', blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.title)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.title
