@@ -1,35 +1,38 @@
-from rest_framework import generics, status
+from rest_framework.generics import UpdateAPIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework import status, generics
 from rest_framework.response import Response
-from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from core.serializers import RegisterSerializer, LoginSerializer
-
-User = get_user_model()
+from core.serializers import UserRegisterSerializer, UserLoginSerializer, UserProfileUpdateSerializer
 
 
 class RegisterView(generics.GenericAPIView):
-    serializer_class = RegisterSerializer
+    serializer_class = UserRegisterSerializer
 
     def post(self, request):
         serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True) # Validationlrni ishga tushuradi
-        user = serializer.save() # yangi user yaratiladi
-        return Response({
-            "message": "Muvaffaqiyatli✅",
-            "user": {
-                "id": user.id,
-                "full_name": f"{user.first_name} {user.last_name}",
-                "email": user.email,
-                "country": user.country
-            }
-        }, status=status.HTTP_201_CREATED)
+        if serializer.is_valid():
+            user = serializer.save()
+            refresh = RefreshToken.for_user(user)
+            return Response({
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+                'message': "Ro'yxatdan o'tish muvaffaqiyatli yakunlandi",
+                'user': {
+                    'id': user.id,
+                    'full_name': user.get_full_name(),
+                    'email': user.email
+                }
+            }, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class LoginView(generics.GenericAPIView):
-    serializer_class = LoginSerializer
+    serializer_class = UserLoginSerializer
 
-    def post(self, request):
+    def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)  # Validationlrni ishga tushuradi
 
@@ -37,8 +40,23 @@ class LoginView(generics.GenericAPIView):
 
         # JWT token yaratamiz
         refresh = RefreshToken.for_user(user)
+        access_token = refresh.access_token
+
         return Response({
             "refresh": str(refresh),
-            "access": str(refresh.access_token),
-            "message": "Kirish muvaffaqiyatli bajarildi"
+            "access": str(access_token),
+            "message": "Kirish muvaffaqiyatli amalga oshirildi",
+            "user": {
+                "id": user.id,
+                "full_name": user.get_full_name(),
+                "email": user.email
+            }
         }, status=status.HTTP_200_OK)
+
+
+class UserProfileUpdateView(UpdateAPIView):
+    serializer_class = UserProfileUpdateSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user

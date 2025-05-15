@@ -1,12 +1,12 @@
 from rest_framework import serializers
-from django.contrib.auth import get_user_model, authenticate
+from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
 from rest_framework.exceptions import AuthenticationFailed
 
-User = get_user_model()
+from users.models import User
 
 
-class RegisterSerializer(serializers.ModelSerializer):
+class UserRegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, validators=[validate_password])
     full_name = serializers.CharField()
 
@@ -27,34 +27,47 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         full_name = validated_data.pop('full_name')
-        email = validated_data.pop('email')
-        password = validated_data.pop('password')
-
         first_name, last_name = full_name.split(" ", 1)
 
-        user = User.objects.create(
-            email=email,
+        password = validated_data.pop('password')
+
+        user = User(
             first_name=first_name,
-            last_name=last_name
+            last_name=last_name,
+            **validated_data
         )
         user.set_password(password)
         user.save()
         return user
 
 
-class LoginSerializer(serializers.Serializer):
+class UserLoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True)
 
-    def validators(self, attrs):
-        email = attrs.get("email")
-        password = attrs.get("password")
+    def validate(self, data):
+        email = data.get("email")
+        password = data.get("password")
+
+        if not email or not password:
+            raise serializers.ValidationError("Email va parol kiriting!")
 
         user = authenticate(username=email, password=password)
 
         if not user:
-            raise AuthenticationFailed("Foydalanuvchi ro'yxatdan o'tmagan!")
+            raise AuthenticationFailed("Email yoki parol noto'g'ri!")
 
         # Agar hammasi yaxshi bo‘lsa, foydalanuvchini qaytaramiz
-        attrs['user'] = user
-        return attrs
+        data['user'] = user
+        return data
+
+
+class UserProfileUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['age', 'gender', 'country']
+        extra_kwargs = {
+            'age': {'required': False},
+            'gender': {'required': False},
+            'country': {'required': False}
+        }
