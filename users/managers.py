@@ -5,12 +5,16 @@ class UserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
         if not email:
             raise ValueError("Email kiritilishi shart!")
+
         email = self.normalize_email(email)
-        user = self.model(email=email, role='user', **extra_fields)
+        extra_fields.setdefault('role', 'user')
+        user = self.model(email=email, **extra_fields)
         user.set_password(password)
         user.save()
         return user
 
     def create_superuser(self, email, password=None, **extra_fields):
-        user = self.create_user(email, password, is_staff=True, is_superuser=True, role='admin', **extra_fields)
-        return user
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        extra_fields.setdefault('role', 'admin')
+        return self.create_user(email, password, **extra_fields)
