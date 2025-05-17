@@ -49,14 +49,17 @@ class Program(models.Model):
     start_age = models.PositiveIntegerField(null=True, blank=True)
     end_age = models.PositiveIntegerField(null=True, blank=True)
     gender = models.CharField(max_length=10, choices=GENDER_CHOICES, null=True, blank=True)
-
     major = models.ManyToManyField('Major', blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
 
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.title)
 
-        # If type is tutorial, clear unnecessary fields
         if self.type == 'tutorial':
             self.desc = None
             self.full_info = None
