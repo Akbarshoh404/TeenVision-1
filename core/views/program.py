@@ -42,8 +42,12 @@ class ProgramViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['post'], permission_classes=[IsAuthenticatedOrReadOnly])
     def like(self, request, pk=None):
+        if not request.user.is_authenticated:
+            return Response({'message': "Iltimos, avval ro'yxatdan o'ting"}, status=status.HTTP_401_UNAUTHORIZED)
+
         program = self.get_object()
         user = request.user
+
         if program in user.liked_programs.all():
             user.liked_programs.remove(program)
             return Response({'message': 'Program unliked'}, status=status.HTTP_200_OK)
