@@ -6,7 +6,7 @@ admin.site.register(User)
 
 
 class ProgramAdmin(admin.ModelAdmin):
-    list_display = ['title', 'slug', 'desc', 'full_info', 'start_date', 'end_date']
+    list_display = ['title', 'slug', 'desc', 'full_info', 'created_at']
     prepopulated_fields = {'slug': ('title',)}  # Title ga qarab slugni avtomatik to'ldiradi
 
 admin.site.register(Program, ProgramAdmin)
