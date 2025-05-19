@@ -3,12 +3,15 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import status, generics
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.parsers import MultiPartParser, FormParser
+
 
 from core.serializers import UserRegisterSerializer, UserLoginSerializer, UserProfileUpdateSerializer
 
 
 class RegisterView(generics.GenericAPIView):
     serializer_class = UserRegisterSerializer
+    parser_classes = [MultiPartParser, FormParser]
 
     def post(self, request):
         serializer = self.get_serializer(data=request.data)
@@ -31,6 +34,7 @@ class RegisterView(generics.GenericAPIView):
 
 class LoginView(generics.GenericAPIView):
     serializer_class = UserLoginSerializer
+    parser_classes = [MultiPartParser, FormParser]
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -57,6 +61,7 @@ class LoginView(generics.GenericAPIView):
 class UserProfileUpdateView(UpdateAPIView):
     serializer_class = UserProfileUpdateSerializer
     permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
 
     def get_object(self):
         return self.request.user
