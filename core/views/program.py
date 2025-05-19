@@ -3,10 +3,11 @@ from rest_framework import viewsets, status, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAdminUser
+from rest_framework.parsers import MultiPartParser, FormParser
 
 
 from core.models import Program
-from core.serializers import ProgramSerializer
+from core.serializers import ProgramSerializer, LikeProgramSerializer
 from core.filters import ProgramFilter
 
 
@@ -14,6 +15,8 @@ class ProgramViewSet(viewsets.ModelViewSet):
     queryset = Program.objects.all()
     serializer_class = ProgramSerializer
     permission_classes = [IsAdminUser | IsAuthenticatedOrReadOnly]
+    parser_classes = [MultiPartParser, FormParser]
+
     lookup_field = 'slug'
     filter_backends = (django_filters.DjangoFilterBackend, filters.SearchFilter)
     filterset_class = ProgramFilter
@@ -40,17 +43,17 @@ class ProgramViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(programs, many=True)
         return Response(serializer.data)
 
-    @action(detail=True, methods=['post'], permission_classes=[IsAuthenticatedOrReadOnly])
-    def like(self, request, pk=None):
-        if not request.user.is_authenticated:
-            return Response({'message': "Iltimos, avval ro'yxatdan o'ting"}, status=status.HTTP_401_UNAUTHORIZED)
-
+    @action(detail=True, methods=['post'], permission_classes=[IsAuthenticatedOrReadOnly], serializer_class=LikeProgramSerializer)
+    def like(self, request, slug=None):
         program = self.get_object()
         user = request.user
 
+        if not user.is_authenticated:
+            return Response({"error": "Ro‘yxatdan o‘ting."}, status=401)
+
         if program in user.liked_programs.all():
             user.liked_programs.remove(program)
-            return Response({'message': 'Program unliked'}, status=status.HTTP_200_OK)
-        else:
-            user.liked_programs.add(program)
-            return Response({'message': 'Program liked'}, status=status.HTTP_200_OK)
+            return Response({"message": "Unlike"})
+
+        user.liked_programs.add(program)
+        return Response({"message": "Like"})
