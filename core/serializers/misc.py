@@ -19,3 +19,7 @@ class MajorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Major
         fields = '__all__'
+
+
+class LikeProgramSerializer(serializers.Serializer):
+    pass

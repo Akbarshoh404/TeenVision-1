@@ -1,11 +1,13 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
+from django_countries.fields import CountryField as CountrySerializerField
 
 User = get_user_model()
 
 
 class CustomUserSerializer(serializers.ModelSerializer):
     liked_programs = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+    country = CountrySerializerField(default='UZ')
 
     class Meta:
         model = User
@@ -13,6 +15,8 @@ class CustomUserSerializer(serializers.ModelSerializer):
 
 
 class AdminSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True)
+
     class Meta:
         model = User
         fields = ['id', 'first_name', 'last_name', 'email', 'password', 'is_staff', 'is_superuser']
