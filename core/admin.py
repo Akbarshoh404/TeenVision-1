@@ -1,8 +1,8 @@
 from django.contrib import admin
-from users.models import User
-from core.models import Program
+from django.contrib.auth import get_user_model
+from core.models import Program, Major
 
-admin.site.register(User)
+User = get_user_model()
 
 
 class ProgramAdmin(admin.ModelAdmin):
@@ -10,3 +10,5 @@ class ProgramAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ('title',)}  # Title ga qarab slugni avtomatik to'ldiradi
 
 admin.site.register(Program, ProgramAdmin)
+admin.site.register(User)
+admin.site.register(Major)

@@ -1,6 +1,11 @@
 from django.db import models
-
 from django.utils.text import slugify
+from django.utils import timezone
+
+
+class ActiveProgramManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(status='on')
 
 
 class Major(models.Model):
@@ -35,6 +40,11 @@ class Program(models.Model):
         ('tutorial', 'Tutorial'),
     ]
 
+    STATUS_CHOICES = [
+        ('on', 'Faol'),
+        ('off', 'Nofaol'),
+    ]
+
     title = models.CharField(max_length=255)
     slug = models.SlugField(max_length=255, unique=True, blank=True)
     desc = models.TextField(null=True, blank=True)
@@ -50,8 +60,11 @@ class Program(models.Model):
     end_age = models.PositiveIntegerField(null=True, blank=True)
     gender = models.CharField(max_length=10, choices=GENDER_CHOICES, null=True, blank=True)
     major = models.ManyToManyField('Major', blank=True)
-
+    status = models.CharField(max_length=3, choices=STATUS_CHOICES, default='on')
     created_at = models.DateTimeField(auto_now_add=True)
+
+    objects = models.Manager()
+    active = ActiveProgramManager()  # faqat status='on' lar uchun
 
     class Meta:
         ordering = ['-created_at']
@@ -60,6 +73,7 @@ class Program(models.Model):
         if not self.slug:
             self.slug = slugify(self.title)
 
+        # Tutorial bo'lsa ayrim maydonlarni tozalash
         if self.type == 'tutorial':
             self.desc = None
             self.full_info = None
@@ -71,6 +85,11 @@ class Program(models.Model):
             self.start_age = None
             self.end_age = None
             self.gender = None
+
+        # Deadline tugagan bo‘lsa status ni o‘chirish
+        if self.deadline and self.deadline < timezone.now().date():
+            self.status = 'off'
+
         super().save(*args, **kwargs)
 
     def __str__(self):
