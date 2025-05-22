@@ -12,7 +12,7 @@ from core.filters import ProgramFilter
 
 
 class ProgramViewSet(viewsets.ModelViewSet):
-    queryset = Program.objects.all()
+    queryset = Program.active.all()
     serializer_class = ProgramSerializer
     permission_classes = [IsAdminUser | IsAuthenticatedOrReadOnly]
     parser_classes = [MultiPartParser, FormParser]
