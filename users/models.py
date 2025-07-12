@@ -25,6 +25,7 @@ class User(AbstractUser):
     gender = models.CharField(max_length=10, choices=GENDER_CHOICES, null=True, blank=True)
     country = CountryField(default='UZ', blank=True)
     liked_programs = models.ManyToManyField(Program, blank=True, related_name='liked_by_users')
+    notification_status = models.BooleanField(default=True)
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='user')
 
     objects = UserManager()
