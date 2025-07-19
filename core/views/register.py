@@ -6,7 +6,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.parsers import MultiPartParser, FormParser
 
 
-from core.serializers import UserRegisterSerializer, UserLoginSerializer, UserProfileUpdateSerializer
+from core.serializers import UserRegisterSerializer, UserLoginSerializer, UserProfileUpdateSerializer, \
+    CustomUserSerializer
 
 
 class RegisterView(generics.GenericAPIView):
@@ -38,23 +39,22 @@ class LoginView(generics.GenericAPIView):
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)  # Validationlrni ishga tushuradi
+        serializer.is_valid(raise_exception=True)
 
-        user = serializer.validated_data['user']  # validate ichida user qaytgan
+        user = serializer.validated_data['user']
 
         # JWT token yaratamiz
         refresh = RefreshToken.for_user(user)
         access_token = refresh.access_token
 
+        # userni CustomUserSerializer orqali serialize qilamiz
+        user_data = CustomUserSerializer(user).data
+
         return Response({
             "refresh": str(refresh),
             "access": str(access_token),
             "message": "Kirish muvaffaqiyatli amalga oshirildi",
-            "user": {
-                "id": user.id,
-                "full_name": user.get_full_name(),
-                "email": user.email
-            }
+            "user": user_data
         }, status=status.HTTP_200_OK)
 
 
