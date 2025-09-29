@@ -37,6 +37,7 @@ CORS_ALLOWED_ORIGINS = [
     "https://teen-vision.netlify.app/",
     "https://teenvision.uz",
     "https://teen-vision.uz",
+    "https://teenvision.onrender.com/"
 ]
 
 
