@@ -31,14 +31,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "https://teen-vision.vercel.app",
-    "https://teen-vision.netlify.app",
-    "https://teenvision.uz",
-    "https://teen-vision.uz",
-    "https://teenvision.onrender.com"
-]
+CORS_ALLOW_ALL_ORIGINS = True
 
 
 # Application definition
