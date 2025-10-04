@@ -12,8 +12,8 @@ router.register(r'majors', MajorViewSet, basename="majors")
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('api/v1/auth/register/', RegisterView.as_view(), name='register'),
-    path('api/v1/auth/login/', LoginView.as_view(), name='login'),
-    path('api/v1/auth/profile/update/', UserProfileUpdateView.as_view(), name='profile-update'),
+    path('auth/register/', RegisterView.as_view(), name='register'),
+    path('auth/login/', LoginView.as_view(), name='login'),
+    path('auth/profile/update/', UserProfileUpdateView.as_view(), name='profile-update'),
 
 ]
