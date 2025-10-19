@@ -53,7 +53,7 @@ class Program(models.Model):
     link = models.URLField()
     country = models.CharField(max_length=100, null=True, blank=True)
     format = models.CharField(max_length=50, choices=FORMAT_CHOICES, null=True, blank=True)
-    photo = models.ImageField(upload_to='program_photos/', null=True, blank=True)
+    photo = models.CharField(max_length=255)
     type = models.CharField(max_length=50, choices=TYPE_CHOICES)
     funding = models.CharField(max_length=100, choices=FUNDING_CHOICES, null=True, blank=True)
     start_age = models.PositiveIntegerField(null=True, blank=True)
